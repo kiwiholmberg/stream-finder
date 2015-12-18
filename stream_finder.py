@@ -18,7 +18,8 @@ def launch_player(stream_uri):
     print('Launching player: ' + stream_uri)
     cmd = [arguments.get('--player'),
            stream_uri,
-           '--fullscreen']
+           '--fullscreen',
+           '--ontop']
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
                               stdin=subprocess.PIPE
