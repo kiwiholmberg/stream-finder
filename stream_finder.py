@@ -1,5 +1,10 @@
 """Stream finder.
 
+Supported services:
+    svtplay
+    twitch
+    youtube
+
 Usage:
   stream_finder.py <service> <query> [--autoplay] [--player=<cmd>]
 
@@ -43,12 +48,17 @@ def svtplay(url):
     stream_uri = get_by_url(url)
     launch_player(stream_uri)
 
+def youtube(url):
+    launch_player(url)
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Dev')
     service = arguments.get('<service>')
     query = arguments.get('<query>')
     # Run function with same name as service.
-    locals().get(service)(query)
+    try:
+        locals().get(service)(query)
+    except TypeError:
+        print('Service \'%s\' not implemented' % service)
 
     # print(arguments)
