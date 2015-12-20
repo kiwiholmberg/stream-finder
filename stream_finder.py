@@ -25,12 +25,8 @@ def launch_player(stream_uri):
            stream_uri,
            '--fullscreen',
            '--ontop']
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE,
-                              stdin=subprocess.PIPE
-                              )
-    out, err = p.communicate()
-    print out
+    p = subprocess.call(' '.join(cmd), shell=True)
+
     # TODO: Handle keyboard input and send to subprocess.
 
 
