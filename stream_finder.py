@@ -21,13 +21,11 @@ import subprocess
 
 def launch_player(stream_uri):
     print('Launching player: ' + stream_uri)
-    cmd = [arguments.get('--player'),
-           stream_uri,
+    cmd = [ arguments.get('--player'),
+           '"%s"' % stream_uri,
            '--fullscreen',
            '--ontop']
     p = subprocess.call(' '.join(cmd), shell=True)
-
-    # TODO: Handle keyboard input and send to subprocess.
 
 
 def twitch(channel_name):
