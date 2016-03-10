@@ -3,7 +3,7 @@
 Supported services:
     svtplay
     twitch
-    youtube
+    youtube (requires mpv with ytdl plugin)
 
 Usage:
   stream_finder.py <service> <query> [--autoplay] [--player=<cmd>]
@@ -17,7 +17,7 @@ Options:
 """
 from docopt import docopt
 import subprocess
-
+from aliases import SERVICES
 
 def launch_player(stream_uri):
     print('Launching player: ' + stream_uri)
@@ -49,9 +49,11 @@ if __name__ == '__main__':
     arguments = docopt(__doc__, version='Dev')
     service = arguments.get('<service>')
     query = arguments.get('<query>')
-    # Run function with same name as service.
+    # Run function with same name as service, or matching alias.
     try:
-        locals().get(service)(query)
+        locals().get(
+            SERVICES.get(service, service)
+        )(query)
     except TypeError:
         print('Service \'%s\' not implemented' % service)
 
