@@ -1,3 +1,5 @@
+![Example of use](examples/example-use.gif)
+
 # Requirements
 Python 2.7 and pip (PyPi)
 A video player like mpv (https://mpv.io/) or vlc.
