@@ -1,65 +1,53 @@
 import requests
 import json
 import re
-import os
-import argparse
 import random
 import m3u8
 import subprocess
+
 
 USHER_API = 'http://usher.twitch.tv/api/channel/hls/{channel}.m3u8?player=twitchweb' +\
     '&token={token}&sig={sig}&$allow_audio_only=true&allow_source=true' + \
     '&type=any&p={random}'
 TOKEN_API = 'http://api.twitch.tv/api/channels/{channel}/access_token'
+TWITCH_URL = 'https://www.twitch.tv'
 
-def get_token_and_signature(channel):
+
+def get_client_id():
+    r = requests.get(TWITCH_URL)
+    if r.status_code >= 400:
+        raise Exception('Error fetching twitch site.')
+    script_matches = re.findall(
+        r'<script src="(/assets/global-fe\w*.js)" type="text/javascript"></script>', r.text)
+    if len(script_matches) != 1:
+        raise Exception('Error finding frontend script on twitch page.')
+    # Get the twitch frontend script that contains the Client-ID we need.
+    r = requests.get(TWITCH_URL + script_matches[0])
+    if r.status_code >= 400:
+        raise Exception('Error fetching twitch frontend script.')
+
+    # Find the client ID with a regex that totally wont match anything else /s
+    client_ids = re.findall(r'var n={},r="(\w*)";', r.text)
+    if len(client_ids) != 1:
+        raise Exception(
+            'Error finding client ID in twitch frontend script. Got {}'.format(client_ids))
+    return client_ids[0]
+
+
+def get_token_and_signature(channel, client_id):
     url = TOKEN_API.format(channel=channel)
-    r = requests.get(url)
-    txt = r.text
-    data = json.loads(txt)
-    sig = data['sig']
-    token = data['token']
-    return token, sig
+    headers = {'Client-ID': client_id}
+    r = requests.get(url, headers=headers)
+    if r.status_code >= 400:
+        raise Exception('Error requesting token from twitch: {}'.format(r.text))
+    data = r.json()
+    return data['token'], data['sig']
+
 
 def get_live_stream(channel):
-    token, sig = get_token_and_signature(channel)
-    r = random.randint(0,1E7)
-    url = USHER_API.format(channel=channel, sig=sig, token=token, random=r)
+    client_id = get_client_id()
+    token, sig = get_token_and_signature(channel, client_id)
+    url = USHER_API.format(channel=channel, sig=sig, token=token, random=random.randint(0, 1E7))
     r = requests.get(url)
     m3u8_obj = m3u8.loads(r.text)
     return m3u8_obj
-
-def print_video_urls(m3u8_obj):
-    print("Video URLs (sorted by quality):")
-    for p in m3u8_obj.playlists:
-        si = p.stream_info
-        bandwidth = si.bandwidth/(1024)
-        quality = p.media[0].name
-        resolution = si.resolution if si.resolution else "?"
-        uri = p.uri
-        #print(p.stream_info, p.media, p.uri[1])
-        txt = "\n{} kbit/s ({}), resolution={}".format(bandwidth, quality, resolution)
-        print(txt)
-        print(len(txt)*"-")
-        print(uri)
-
-def launch_player(m3u8_obj):
-    if len(m3u8_obj.playlists) > 0:
-        cmd = ['mpv', '%s' % m3u8_obj.playlists[0].uri, '--fullscreen' ]
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
-                                   stdin=subprocess.PIPE)
-        out, err = p.communicate('what')
-        print out
-    else:
-        print 'No stream available.'
-
-
-if __name__=="__main__":
-    parser = argparse.ArgumentParser('get video url of twitch channel')
-    parser.add_argument('channel_name')
-    args = parser.parse_args()
-    m3u8_obj = get_live_stream(args.channel_name)
-    # print_video_urls(m3u8_obj)
-    launch_player(m3u8_obj)
-
