@@ -18,7 +18,7 @@ def get_client_id():
     if r.status_code >= 400:
         raise Exception('Error fetching twitch site.')
     script_matches = re.findall(
-        r'<script src="(/assets/global-fe\w*.js)" type="text/javascript"></script>', r.text)
+        r'<script src="(/assets/global-\w*.js)" type="text/javascript"></script>', r.text)
     if len(script_matches) != 1:
         raise Exception('Error finding frontend script on twitch page.')
     # Get the twitch frontend script that contains the Client-ID we need.
