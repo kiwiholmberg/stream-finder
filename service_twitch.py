@@ -9,28 +9,20 @@ import subprocess
 USHER_API = 'http://usher.twitch.tv/api/channel/hls/{channel}.m3u8?player=twitchweb' +\
     '&token={token}&sig={sig}&$allow_audio_only=true&allow_source=true' + \
     '&type=any&p={random}'
-TOKEN_API = 'http://api.twitch.tv/api/channels/{channel}/access_token'
-TWITCH_URL = 'https://www.twitch.tv'
+TOKEN_API = 'https://api.twitch.tv/api/channels/{channel}/access_token'
+CDN_BASE = 'https://web-cdn.ttvnw.net/'
 
 
 def get_client_id():
-    r = requests.get(TWITCH_URL)
+    r = requests.get(CDN_BASE + 'global.js')
     if r.status_code >= 400:
-        raise Exception('Error fetching twitch site.')
-    script_matches = re.findall(
-        r'<script src="(/assets/global-\w*.js)" type="text/javascript"></script>', r.text)
-    if len(script_matches) != 1:
-        raise Exception('Error finding frontend script on twitch page.')
-    # Get the twitch frontend script that contains the Client-ID we need.
-    r = requests.get(TWITCH_URL + script_matches[0])
-    if r.status_code >= 400:
-        raise Exception('Error fetching twitch frontend script.')
+        raise Exception('Error fetching global.js script.')
 
     # Find the client ID with a regex that totally wont match anything else /s
-    client_ids = re.findall(r'var n={},r="(\w*)";', r.text)
+    client_ids = re.findall(r'var i={},o="(\w*)";', r.text)
     if len(client_ids) != 1:
         raise Exception(
-            'Error finding client ID in twitch frontend script. Got {}'.format(client_ids))
+            'Error finding client ID in twitch global-frontend script. Got {}'.format(client_ids))
     return client_ids[0]
 
 
