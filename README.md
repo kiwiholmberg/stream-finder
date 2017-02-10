@@ -1,7 +1,7 @@
 ![Example of use](examples/example-use.gif)
 
 # Requirements
-Python 2.7 and pip (PyPi)
+A python version between 2.7 and 3.6, and pip (PyPi).
 A video player like mpv (https://mpv.io/) or vlc.
 
 # Install
