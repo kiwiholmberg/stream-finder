@@ -4,7 +4,8 @@ import requests
 def get_by_url(url):
     # Get show data from svtplay.se.
     r = requests.get('%s?type=embed&output=json' % (url))
-
+    r.raise_for_status()
+    
     response_json = r.json()
     video = response_json.get('video')
 

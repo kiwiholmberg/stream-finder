@@ -32,7 +32,7 @@ def launch_player(stream_uri):
 
 def twitch(channel_name):
     """Handle twitch.tv streams"""
-    from service_twitch import get_live_stream
+    from service.twitch import get_live_stream
     m3u8_obj = get_live_stream(channel_name)
     if len(m3u8_obj.playlists) > 0:
         launch_player(m3u8_obj.playlists[0].uri)
@@ -42,7 +42,7 @@ def twitch(channel_name):
 
 def svtplay(url):
     """Handle svtplay.se streams"""
-    from service_svtplay import get_by_url
+    from service.svtplay import get_by_url
     stream_uri = get_by_url(url)
     launch_player(stream_uri)
 
