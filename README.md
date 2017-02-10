@@ -10,14 +10,27 @@ It's optional but recommended to use virtualenv for Python to manage package dep
 Install dependencies with ```pip install -r requirements.txt```
 
 ### Optional
-Bind the python script to an alias in your shell config,
-ie. ```alias sf='python ~/stream-finder/stream_finder.py'```
+Bind the python script to an alias in your shell config.
+
+Like this: ```alias sf='python ~/stream-finder/stream_finder.py'```
 
 # Run
 ```stream_finder.py <service> <query> [--autoplay] [--player=<cmd>]```
 
+# Examples
+Twitch channel for summit1g:
+```stream_finder.py tw summit1g```
 
+SVT channel 2
+```stream_finder.py svt http://www.svtplay.se/kanaler/svt2```
 
+A youtube video
+```stream_finder.py yt https://www.youtube.com/watch?v=vwGnXKNGjT0```
 
+# Tests
+Tests that connect to 3rd party providers are available. These are useful to detect if a service has changed their api.
 
+### Run tests
+```PYTHONPATH=. pytest```
 
+[![Build Status](https://travis-ci.org/kiwiholmberg/stream-finder.svg?branch=master)](https://travis-ci.org/kiwiholmberg/stream-finder)
