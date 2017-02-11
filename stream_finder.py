@@ -3,30 +3,31 @@
 Supported services:
     svtplay (alias: svt)
     twitch  (alias: tw)
-    youtube (alias: yt) Requires mpv with ytdl plugin
+    youtube (alias: yt) Requires mpv video player with ytdl plugin.
 
 Usage:
-  stream_finder.py <service> <query> [--autoplay] [--player=<cmd>]
+  stream_finder.py <service> <query> [--config=<str>]
+  stream_finder.py twitch twitchplayspokemon
 
 Options:
   -h --help         Show this screen.
-  --autoplay        Autoplay
-  --version         Show version.
-  --player=<cmd>    Player launch command [default: mpv].
+  --config=<str>    Config file to use. [default: config.ini]
 
 """
 import subprocess
+import configparser
 from docopt import docopt
 from aliases import SERVICES
 
 
 def launch_player(stream_uri):
-    """Execute the media player with the already extracted link."""
-    print('Launching player for uri: {}'.format(stream_uri))
-    cmd = [arguments.get('--player'),
-           '"%s"' % stream_uri,
-           '--fullscreen',
-           '--ontop']
+    """Launch the media player with stream uri."""
+    cmd = [
+        config.get('player', 'launch_cmd'),
+        '"%s"' % stream_uri,
+        # Format the parameters and splat them into the list.
+        *['--{}'.format(p) for p in config.get('player', 'parameters').split(',')]
+    ]
     subprocess.call(' '.join(cmd), shell=True)
 
 
@@ -57,12 +58,13 @@ if __name__ == '__main__':
     service = arguments.get('<service>')
     query = arguments.get('<query>')
 
+    config = configparser.ConfigParser()
+    config.read(arguments.get('--config'))
+
     try:
         # Run function with same name as service, or matching alias.
         locals().get(
             SERVICES.get(service, service)
         )(query)
-    except TypeError:
+    except NotImplementedError:
         print('Service \'%s\' not implemented' % service)
-
-    # print(arguments)
