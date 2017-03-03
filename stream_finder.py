@@ -25,9 +25,7 @@ def launch_player(stream_uri):
     cmd = [
         config.get('player', 'launch_cmd'),
         '"%s"' % stream_uri,
-        # Format the parameters and splat them into the list.
-        *['--{}'.format(p) for p in config.get('player', 'parameters').split(',')]
-    ]
+    ] + ['--{}'.format(p) for p in config.get('player', 'parameters').split(',')]
     subprocess.call(' '.join(cmd), shell=True)
 
 
