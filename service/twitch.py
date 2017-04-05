@@ -1,9 +1,7 @@
 import requests
-import json
 import re
 import random
 import m3u8
-import subprocess
 
 
 USHER_API = 'http://usher.twitch.tv/api/channel/hls/{channel}.m3u8?player=twitchweb' +\
@@ -19,7 +17,7 @@ def get_client_id():
         raise Exception('Error fetching global.js script.')
 
     # Find the client ID with a regex that totally wont match anything else /s
-    client_ids = re.findall(r'var i={},r="(\w*)";', r.text)
+    client_ids = re.findall(r'clientID:"(\w*)"', r.text)
     if len(client_ids) != 1:
         raise Exception(
             'Error finding client ID in twitch global-frontend script. Got {}'.format(client_ids))
